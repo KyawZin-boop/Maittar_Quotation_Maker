@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Production and local build output
+dist/
+dev-dist/
+.vite/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Tests and generated reports
+coverage/
+*.log
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local temporary files
+*.tmp
+*.temp
