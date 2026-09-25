@@ -15,9 +15,11 @@ import {
 } from 'lucide-react';
 import { createEmptyItem, createId, defaultQuote } from './defaults';
 import { formatMoney, safeFileName } from './format';
+import { createTranslator, type AppLanguage, type Translator } from './i18n';
 import type { QuoteData, QuoteItem } from './types';
 
 const STORAGE_KEY = 'maittar-quotation-v1';
+const LANGUAGE_KEY = 'maittar-language';
 type Screen = 'quotation' | 'company';
 
 const loadQuote = (): QuoteData => {
@@ -86,6 +88,7 @@ function ItemCard({
   item,
   index,
   totalItems,
+  t,
   onChange,
   onRemove,
   onMove
@@ -93,6 +96,7 @@ function ItemCard({
   item: QuoteItem;
   index: number;
   totalItems: number;
+  t: Translator;
   onChange: (patch: Partial<QuoteItem>) => void;
   onRemove: () => void;
   onMove: (direction: -1 | 1) => void;
@@ -101,12 +105,12 @@ function ItemCard({
     <article className="item-card">
       <header className="item-card__header">
         <div className="item-number">{index + 1}</div>
-        <strong>Quotation item</strong>
+        <strong>{t('quotationItem')}</strong>
         <div className="item-actions">
           <button
             className="icon-button"
             type="button"
-            aria-label="Move item up"
+            aria-label={t('moveUp')}
             disabled={index === 0}
             onClick={() => onMove(-1)}
           >
@@ -115,7 +119,7 @@ function ItemCard({
           <button
             className="icon-button"
             type="button"
-            aria-label="Move item down"
+            aria-label={t('moveDown')}
             disabled={index === totalItems - 1}
             onClick={() => onMove(1)}
           >
@@ -124,7 +128,7 @@ function ItemCard({
           <button
             className="icon-button danger"
             type="button"
-            aria-label="Delete item"
+            aria-label={t('deleteItem')}
             onClick={onRemove}
           >
             <Trash2 size={17} />
@@ -133,28 +137,28 @@ function ItemCard({
       </header>
 
       <Field
-        label="Particular"
+        label={t('particular')}
         value={item.particular}
-        placeholder="e.g. 1.5 HP new installation cost"
+        placeholder={t('particularPlaceholder')}
         multiline
         onChange={(particular) => onChange({ particular })}
       />
       <div className="field-grid three">
         <Field
-          label="Quantity"
+          label={t('quantity')}
           value={item.quantity}
           type="number"
           inputMode="decimal"
           onChange={(quantity) => onChange({ quantity: Number(quantity) })}
         />
         <Field
-          label="Unit"
+          label={t('unit')}
           value={item.unit}
-          placeholder="Set / Ft"
+          placeholder={t('unitPlaceholder')}
           onChange={(unit) => onChange({ unit })}
         />
         <Field
-          label="Rate"
+          label={t('rate')}
           value={item.rate}
           type="number"
           inputMode="decimal"
@@ -163,13 +167,13 @@ function ItemCard({
       </div>
       <div className="field-grid amount-row">
         <Field
-          label="Remark"
+          label={t('remark')}
           value={item.remark}
-          placeholder="Optional brand or note"
+          placeholder={t('remarkPlaceholder')}
           onChange={(remark) => onChange({ remark })}
         />
         <div className="calculated-amount">
-          <span>Amount</span>
+          <span>{t('amount')}</span>
           <strong>{formatMoney(item.quantity * item.rate)}</strong>
         </div>
       </div>
@@ -179,12 +183,16 @@ function ItemCard({
 
 export default function App() {
   const [data, setData] = useState<QuoteData>(loadQuote);
+  const [language, setLanguage] = useState<AppLanguage>(() =>
+    localStorage.getItem(LANGUAGE_KEY) === 'en' ? 'en' : 'mm'
+  );
   const [screen, setScreen] = useState<Screen>('quotation');
   const [pdfUrl, setPdfUrl] = useState('');
   const [busy, setBusy] = useState<'preview' | 'download' | 'share' | ''>('');
   const [message, setMessage] = useState('');
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
+  const t = createTranslator(language);
 
   const total = useMemo(
     () =>
@@ -198,6 +206,11 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }, [data]);
+
+  useEffect(() => {
+    localStorage.setItem(LANGUAGE_KEY, language);
+    document.documentElement.lang = language === 'mm' ? 'my' : 'en';
+  }, [language]);
 
   useEffect(() => {
     const onInstall = (event: Event) => {
@@ -252,7 +265,7 @@ export default function App() {
 
   const showError = (error: unknown) => {
     console.error(error);
-    setMessage('Could not create the PDF. Please try again.');
+    setMessage(t('pdfError'));
     window.setTimeout(() => setMessage(''), 4000);
   };
 
@@ -295,7 +308,7 @@ export default function App() {
       });
       if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
         await navigator.share({
-          title: `Quotation – ${data.projectName || 'Maittar'}`,
+          title: `${t('createQuotation')} – ${data.projectName || 'Maittar'}`,
           files: [file]
         });
       } else {
@@ -305,7 +318,7 @@ export default function App() {
         link.download = file.name;
         link.click();
         window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-        setMessage('Sharing is not supported here, so the PDF was downloaded.');
+        setMessage(t('shareFallback'));
         window.setTimeout(() => setMessage(''), 4000);
       }
     } catch (error) {
@@ -316,7 +329,7 @@ export default function App() {
   };
 
   const newQuotation = () => {
-    if (!window.confirm('Start a new quotation? Company details will be kept.')) return;
+    if (!window.confirm(t('newConfirmation'))) return;
     setData((current) => ({
       ...current,
       projectName: '',
@@ -339,14 +352,20 @@ export default function App() {
         <div className="brand">
           <img src="/logo.png" alt="Maittar" />
           <div>
-            <span>QUOTATION MAKER</span>
-            <strong>{screen === 'quotation' ? 'Create quotation' : 'Company details'}</strong>
+            <span>{t('quotationMaker')}</span>
+            <strong>{screen === 'quotation' ? t('createQuotation') : t('companyDetails')}</strong>
           </div>
         </div>
-        <button className="icon-button header-settings" type="button" onClick={() => setScreen(screen === 'quotation' ? 'company' : 'quotation')}>
-          {screen === 'quotation' ? <Settings2 size={21} /> : <X size={21} />}
-          <span className="sr-only">{screen === 'quotation' ? 'Open company settings' : 'Close company settings'}</span>
-        </button>
+        <div className="header-actions">
+          <div className="language-switch" role="group" aria-label={t('language')}>
+            <button type="button" className={language === 'mm' ? 'active' : ''} onClick={() => setLanguage('mm')} aria-pressed={language === 'mm'}>မြန်မာ</button>
+            <button type="button" className={language === 'en' ? 'active' : ''} onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>EN</button>
+          </div>
+          <button className="icon-button header-settings" type="button" onClick={() => setScreen(screen === 'quotation' ? 'company' : 'quotation')}>
+            {screen === 'quotation' ? <Settings2 size={21} /> : <X size={21} />}
+            <span className="sr-only">{screen === 'quotation' ? t('openSettings') : t('closeSettings')}</span>
+          </button>
+        </div>
       </header>
 
       <main>
@@ -354,9 +373,9 @@ export default function App() {
           <>
             <section className="intro-card">
               <div>
-                <span className="eyebrow">Saved automatically</span>
-                <h1>Build your quotation</h1>
-                <p>Add the project details and items. Amounts and totals calculate for you.</p>
+                <span className="eyebrow">{t('savedAutomatically')}</span>
+                <h1>{t('buildQuotation')}</h1>
+                <p>{t('introDescription')}</p>
               </div>
               <FileText size={34} aria-hidden="true" />
             </section>
@@ -366,23 +385,23 @@ export default function App() {
                 <div>
                   <span>01</span>
                   <div>
-                    <h2>Project details</h2>
-                    <p>Shown above the item table.</p>
+                    <h2>{t('projectDetails')}</h2>
+                    <p>{t('projectHelp')}</p>
                   </div>
                 </div>
                 <button className="text-button" type="button" onClick={newQuotation}>
-                  <FilePlus2 size={16} /> New
+                  <FilePlus2 size={16} /> {t('new')}
                 </button>
               </div>
               <div className="surface">
                 <Field
-                  label="Project name"
+                  label={t('projectName')}
                   value={data.projectName}
-                  placeholder="e.g. SHWE HIN THAR Condo A-704"
+                  placeholder={t('projectPlaceholder')}
                   onChange={(value) => updateData('projectName', value)}
                 />
                 <Field
-                  label="Quotation date"
+                  label={t('quotationDate')}
                   value={data.date}
                   type="date"
                   onChange={(value) => updateData('date', value)}
@@ -395,8 +414,8 @@ export default function App() {
                 <div>
                   <span>02</span>
                   <div>
-                    <h2>Items</h2>
-                    <p>{data.items.length} {data.items.length === 1 ? 'item' : 'items'} in this quotation.</p>
+                    <h2>{t('items')}</h2>
+                    <p>{t('itemCount', { count: data.items.length })}</p>
                   </div>
                 </div>
               </div>
@@ -408,6 +427,7 @@ export default function App() {
                     item={item}
                     index={index}
                     totalItems={data.items.length}
+                    t={t}
                     onChange={(patch) => updateItem(item.id, patch)}
                     onRemove={() => removeItem(item.id)}
                     onMove={(direction) => moveItem(index, direction)}
@@ -420,11 +440,11 @@ export default function App() {
                 type="button"
                 onClick={() => updateData('items', [...data.items, createEmptyItem()])}
               >
-                <Plus size={19} /> Add another item
+                <Plus size={19} /> {t('addItem')}
               </button>
 
               <div className="total-card">
-                <span>All total</span>
+                <span>{t('allTotal')}</span>
                 <strong>{formatMoney(total)} <small>MMK</small></strong>
               </div>
             </section>
@@ -434,32 +454,32 @@ export default function App() {
                 <div>
                   <span>03</span>
                   <div>
-                    <h2>Terms</h2>
-                    <p>Displayed below the total.</p>
+                    <h2>{t('terms')}</h2>
+                    <p>{t('termsHelp')}</p>
                   </div>
                 </div>
               </div>
               <div className="surface">
                 <Field
-                  label="Price validity"
+                  label={t('priceValidity')}
                   value={data.validity}
                   onChange={(value) => updateData('validity', value)}
                 />
                 <Field
-                  label="Warranty"
+                  label={t('warranty')}
                   value={data.warranty}
                   multiline
                   onChange={(value) => updateData('warranty', value)}
                 />
                 <Field
-                  label="Discount"
+                  label={t('discount')}
                   value={data.discount}
                   type="number"
                   inputMode="decimal"
                   onChange={(value) => updateData('discount', Number(value))}
                 />
                 <Field
-                  label="Payment-page description"
+                  label={t('paymentDescription')}
                   value={data.paymentNote}
                   multiline
                   onChange={(value) => updateData('paymentNote', value)}
@@ -471,23 +491,23 @@ export default function App() {
           <section className="settings-page">
             <div className="settings-hero">
               <img src="/header-logo.png" alt="Maittar Engineering Air-Con" />
-              <h1>Company details</h1>
-              <p>These details are saved on this device and used for every new quotation.</p>
+              <h1>{t('companyDetails')}</h1>
+              <p>{t('companyHelp')}</p>
             </div>
             <div className="surface settings-fields">
               <Field
-                label="Engineer name"
+                label={t('engineerName')}
                 value={data.engineerName}
                 onChange={(value) => updateData('engineerName', value)}
               />
               <Field
-                label="Phone"
+                label={t('phone')}
                 value={data.phone}
                 inputMode="tel"
                 onChange={(value) => updateData('phone', value)}
               />
               <Field
-                label="Address"
+                label={t('address')}
                 value={data.address}
                 multiline
                 onChange={(value) => updateData('address', value)}
@@ -498,8 +518,8 @@ export default function App() {
               <button className="install-card" type="button" onClick={installApp}>
                 <Smartphone size={25} />
                 <span>
-                  <strong>Install on this phone</strong>
-                  Add the quotation maker to your home screen.
+                  <strong>{t('installPhone')}</strong>
+                  {t('installHelp')}
                 </span>
               </button>
             )}
@@ -508,43 +528,43 @@ export default function App() {
       </main>
 
       {screen === 'quotation' && (
-        <nav className="action-bar" aria-label="PDF actions">
+        <nav className="action-bar" aria-label={t('pdfActions')}>
           <button type="button" onClick={previewPdf} disabled={!!busy}>
             <Eye size={19} />
-            <span>{busy === 'preview' ? 'Building…' : 'Preview'}</span>
+            <span>{busy === 'preview' ? t('building') : t('preview')}</span>
           </button>
           <button type="button" onClick={downloadPdf} disabled={!!busy}>
             <Download size={19} />
-            <span>{busy === 'download' ? 'Saving…' : 'Download'}</span>
+            <span>{busy === 'download' ? t('saving') : t('download')}</span>
           </button>
           <button className="primary-action" type="button" onClick={sharePdf} disabled={!!busy}>
             <Share2 size={19} />
-            <span>{busy === 'share' ? 'Preparing…' : 'Share PDF'}</span>
+            <span>{busy === 'share' ? t('preparing') : t('sharePdf')}</span>
           </button>
         </nav>
       )}
 
       {pdfUrl && (
-        <div className="preview-modal" role="dialog" aria-modal="true" aria-label="PDF preview">
+        <div className="preview-modal" role="dialog" aria-modal="true" aria-label={t('quotationPreview')}>
           <div className="preview-header">
             <div>
-              <strong>Quotation preview</strong>
-              <span>Check the PDF before sharing.</span>
+              <strong>{t('quotationPreview')}</strong>
+              <span>{t('previewHelp')}</span>
             </div>
             <button className="icon-button" type="button" onClick={() => setPdfUrl('')}>
               <X size={21} />
-              <span className="sr-only">Close preview</span>
+              <span className="sr-only">{t('closePreview')}</span>
             </button>
           </div>
           <object data={pdfUrl} type="application/pdf" className="pdf-frame">
-            <p>Your browser cannot show the preview. Use Download PDF instead.</p>
+            <p>{t('previewUnsupported')}</p>
           </object>
           <div className="preview-actions">
             <button type="button" className="secondary-button" onClick={downloadPdf}>
-              <Download size={18} /> Download
+              <Download size={18} /> {t('download')}
             </button>
             <button type="button" className="primary-button" onClick={sharePdf}>
-              <Share2 size={18} /> Share PDF
+              <Share2 size={18} /> {t('sharePdf')}
             </button>
           </div>
         </div>

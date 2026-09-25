@@ -1,5 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
+@font-face {
+  font-family: 'Noto Myanmar';
+  src: url('/NotoSansMyanmar-Regular.ttf') format('truetype');
+  font-weight: 400 700;
+  font-display: swap;
+}
+
 :root {
   font-family: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #17201d;
@@ -35,6 +42,10 @@ body {
   background:
     radial-gradient(circle at 100% -10%, rgba(153, 207, 0, 0.14), transparent 28rem),
     #eef3f0;
+}
+
+html[lang='my'] body {
+  font-family: 'Noto Myanmar', 'DM Sans', system-ui, sans-serif;
 }
 
 button,
@@ -74,6 +85,7 @@ button:disabled {
 
 .brand {
   display: flex;
+  flex: 1;
   align-items: center;
   min-width: 0;
   gap: 12px;
@@ -91,10 +103,14 @@ button:disabled {
 }
 
 .brand span {
+  overflow: hidden;
+  max-width: 150px;
   color: var(--green-700);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.15em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .brand strong {
@@ -131,6 +147,42 @@ button:disabled {
   color: #ffffff;
   background: var(--green-900);
   border: 0;
+}
+
+.header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+}
+
+.language-switch {
+  display: flex;
+  padding: 3px;
+  background: #dfe8e3;
+  border-radius: 10px;
+}
+
+.language-switch button {
+  min-width: 32px;
+  height: 30px;
+  padding: 0 7px;
+  color: #66716d;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.language-switch button.active {
+  color: #ffffff;
+  background: var(--green-900);
+  box-shadow: 0 3px 8px rgba(18, 59, 46, 0.18);
+}
+
+html[lang='my'] .brand span {
+  letter-spacing: 0;
 }
 
 main {
@@ -632,6 +684,33 @@ p {
 }
 
 @media (max-width: 400px) {
+  .app-header {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brand img {
+    width: 63px;
+  }
+
+  .brand span {
+    max-width: 105px;
+  }
+
+  .brand strong {
+    max-width: 120px;
+    font-size: 13px;
+  }
+
+  .language-switch button {
+    min-width: 28px;
+    padding: 0 5px;
+  }
+
   .field-grid.three {
     grid-template-columns: 1fr 1fr;
   }
