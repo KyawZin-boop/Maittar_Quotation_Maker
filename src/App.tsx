@@ -61,6 +61,10 @@ function Field({
   placeholder?: string;
   multiline?: boolean;
 }) {
+  const [focused, setFocused] = useState(false);
+  const isNumberInput = type === 'number';
+  const displayValue = isNumberInput && focused && Number(value) === 0 ? '' : value;
+
   return (
     <label className="field">
       <span>{label}</span>
@@ -75,8 +79,15 @@ function Field({
         <input
           type={type}
           inputMode={inputMode}
-          value={value}
+          value={displayValue}
           placeholder={placeholder}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          onWheel={(event) => {
+            if (!isNumberInput) return;
+            event.preventDefault();
+            event.currentTarget.blur();
+          }}
           onChange={(event) => onChange(event.target.value)}
         />
       )}

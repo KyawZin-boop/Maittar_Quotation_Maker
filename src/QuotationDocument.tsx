@@ -157,15 +157,10 @@ const styles = StyleSheet.create({
     marginBottom: 5
   },
   warranty: {
-    marginTop: 6
+    marginTop: 2
   },
   latinText: {
     fontFamily: 'Helvetica'
-  },
-  signatures: {
-    marginTop: 'auto',
-    paddingHorizontal: 70,
-    paddingBottom: 12
   },
   signatureRow: {
     flexDirection: 'row',
@@ -645,18 +640,6 @@ export default function QuotationDocument({ data, logoUrl }: Props) {
                   >
                     ({data.warranty})
                   </Text>
-                </View>
-                <View style={styles.signatures}>
-                  <View style={styles.signatureRow}>
-                    <Text style={styles.signature}>Customer Signature</Text>
-                    <Text style={styles.signature}>Authorized&apos;s Signature</Text>
-                  </View>
-                  <View style={styles.signatureDetails}>
-                    <Text style={styles.signature}> </Text>
-                    <Text style={styles.signature}>
-                      {`${data.engineerName}\n${data.phone}`}
-                    </Text>
-                  </View>
                 </View>
               </>
             )}
