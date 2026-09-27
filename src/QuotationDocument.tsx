@@ -151,10 +151,10 @@ const styles = StyleSheet.create({
   terms: {
     marginTop: 10,
     marginLeft: 40,
-    lineHeight: 1.5
+    lineHeight: 1
   },
   termHeading: {
-    marginBottom: 5
+    marginBottom: 2
   },
   warranty: {
     marginTop: 2

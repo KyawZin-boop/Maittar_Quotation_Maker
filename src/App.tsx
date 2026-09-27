@@ -7,6 +7,7 @@ import {
   FilePlus2,
   FileText,
   Plus,
+  ScanLine,
   Settings2,
   Share2,
   Smartphone,
@@ -16,6 +17,7 @@ import {
 import { createEmptyItem, createId, defaultQuote } from './defaults';
 import { formatMoney, safeFileName } from './format';
 import { createTranslator, type AppLanguage, type Translator } from './i18n';
+import OcrImport from './OcrImport';
 import type { QuoteData, QuoteItem } from './types';
 
 const STORAGE_KEY = 'maittar-quotation-v1';
@@ -201,6 +203,7 @@ export default function App() {
   const [pdfUrl, setPdfUrl] = useState('');
   const [busy, setBusy] = useState<'preview' | 'download' | 'share' | ''>('');
   const [message, setMessage] = useState('');
+  const [showOcr, setShowOcr] = useState(false);
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const t = createTranslator(language);
@@ -261,6 +264,12 @@ export default function App() {
     const items = [...data.items];
     [items[index], items[nextIndex]] = [items[nextIndex], items[index]];
     updateData('items', items);
+  };
+
+  const importOcrItems = (items: QuoteItem[], mode: 'replace' | 'append') => {
+    updateData('items', mode === 'replace' ? items : [...data.items, ...items]);
+    setMessage(t('ocrImported', { count: items.length }));
+    window.setTimeout(() => setMessage(''), 4000);
   };
 
   const buildPdf = async () => {
@@ -392,7 +401,7 @@ export default function App() {
             </section>
 
             <section className="form-section">
-              <div className="section-heading">
+              <div className="section-heading items-heading">
                 <div>
                   <span>01</span>
                   <div>
@@ -429,6 +438,9 @@ export default function App() {
                     <p>{t('itemCount', { count: data.items.length })}</p>
                   </div>
                 </div>
+                <button className="text-button scan-button" type="button" onClick={() => setShowOcr(true)}>
+                  <ScanLine size={17} /> {t('scanItems')}
+                </button>
               </div>
 
               <div className="items-list">
@@ -582,6 +594,13 @@ export default function App() {
       )}
 
       {message && <div className="toast" role="status">{message}</div>}
+
+      <OcrImport
+        open={showOcr}
+        t={t}
+        onClose={() => setShowOcr(false)}
+        onImport={importOcrItems}
+      />
     </div>
   );
 }
