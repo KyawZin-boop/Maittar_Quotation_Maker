@@ -502,7 +502,7 @@ const PaymentPage = ({
 
         {[
           { label: 'Total', amount: total },
-          { label: 'Discount', amount: discount },
+          ...(discount > 0 ? [{ label: 'Discount', amount: discount }] : []),
           { label: 'Net Amount', amount: netAmount }
         ].map((summary) => (
           <View key={summary.label} style={styles.paymentRow} wrap={false}>
