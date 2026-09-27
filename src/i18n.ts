@@ -60,7 +60,23 @@ const en = {
   newConfirmation: 'Start a new quotation? Company details will be kept.',
   language: 'Language',
   english: 'English',
-  myanmar: 'မြန်မာ'
+  myanmar: 'မြန်မာ',
+  scanItems: 'Scan items',
+  ocrTitle: 'Scan item list',
+  ocrPrivate: 'Free on-device OCR — your photo is not uploaded',
+  chooseOcrPhoto: 'Take or choose a photo',
+  ocrPhotoTip: 'For best results, keep the page flat, bright and straight.',
+  ocrSelectedPhoto: 'Selected item-list photo',
+  changePhoto: 'Change photo',
+  scanningPhoto: 'Reading handwriting…',
+  ocrNoRows: 'No item rows were found. Try a clearer, straighter photo.',
+  ocrError: 'The photo could not be read. Check your connection for the first scan and try again.',
+  reviewOcrItems: 'Review every detected item',
+  ocrReviewHelp: 'Handwriting OCR can make mistakes. Correct the fields before importing.',
+  addOcrItems: 'Add to current items',
+  replaceWithOcrItems: 'Replace current items',
+  cancel: 'Cancel',
+  ocrImported: '{count} scanned item(s) imported.'
 } as const;
 
 const mm: Record<keyof typeof en, string> = {
@@ -123,7 +139,23 @@ const mm: Record<keyof typeof en, string> = {
   newConfirmation: 'တင်ပြလွှာအသစ် စတင်မည်လား။ လုပ်ငန်းအချက်အလက်များကို ဆက်လက်သိမ်းထားပါမည်။',
   language: 'ဘာသာစကား',
   english: 'English',
-  myanmar: 'မြန်မာ'
+  myanmar: 'မြန်မာ',
+  scanItems: 'ပစ္စည်းစာရင်း Scan ဖတ်ရန်',
+  ocrTitle: 'ပစ္စည်းစာရင်း Scan ဖတ်ရန်',
+  ocrPrivate: 'အခမဲ့ စက်တွင်း OCR — ဓာတ်ပုံကို upload မလုပ်ပါ',
+  chooseOcrPhoto: 'ဓာတ်ပုံရိုက်ရန် သို့မဟုတ် ရွေးရန်',
+  ocrPhotoTip: 'စာမျက်နှာကို ပြန့်ပြန့်၊ အလင်းရောင်ကောင်းကောင်းနှင့် တည့်တည့်ထားပါ။',
+  ocrSelectedPhoto: 'ရွေးထားသော ပစ္စည်းစာရင်းဓာတ်ပုံ',
+  changePhoto: 'ဓာတ်ပုံပြောင်းရန်',
+  scanningPhoto: 'လက်ရေးကို ဖတ်နေသည်…',
+  ocrNoRows: 'ပစ္စည်းစာကြောင်း မတွေ့ပါ။ ပိုရှင်းပြီး တည့်သောဓာတ်ပုံဖြင့် ထပ်စမ်းပါ။',
+  ocrError: 'ဓာတ်ပုံကို ဖတ်၍မရပါ။ ပထမဆုံး scan အတွက် အင်တာနက်လိုင်းစစ်ပြီး ထပ်စမ်းပါ။',
+  reviewOcrItems: 'ဖတ်ထားသော ပစ္စည်းတိုင်းကို စစ်ဆေးပါ',
+  ocrReviewHelp: 'လက်ရေး OCR တွင် အမှားရှိနိုင်သည်။ မထည့်မီ အချက်အလက်များကို ပြင်ပါ။',
+  addOcrItems: 'လက်ရှိစာရင်းသို့ ထည့်ရန်',
+  replaceWithOcrItems: 'လက်ရှိစာရင်းကို အစားထိုးရန်',
+  cancel: 'မလုပ်တော့ပါ',
+  ocrImported: 'Scan ဖတ်ထားသော ပစ္စည်း {count} ခု ထည့်ပြီးပါပြီ။'
 };
 
 export type TranslationKey = keyof typeof en;
