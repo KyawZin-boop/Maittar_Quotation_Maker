@@ -55,7 +55,8 @@ const styles = StyleSheet.create({
   },
   contactValue: {
     flex: 1,
-    lineHeight: 1
+    lineHeight: 1,
+    fontWeight: 600
   },
   projectBox: {
     borderWidth: 1,
@@ -72,7 +73,8 @@ const styles = StyleSheet.create({
     fontWeight: 700
   },
   projectValue: {
-    flex: 1
+    flex: 1,
+    fontWeight: 600
   },
   table: {
     borderLeftWidth: 1,
@@ -107,7 +109,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
     paddingVertical: 5,
     justifyContent: 'center',
-    lineHeight: 1
+    lineHeight: 1,
+    fontWeight: 600
   },
   cellText: {
     transform: [{ operation: 'translate', value: [0, 0.8] }]
@@ -151,7 +154,8 @@ const styles = StyleSheet.create({
   terms: {
     marginTop: 10,
     marginLeft: 40,
-    lineHeight: 1
+    lineHeight: 1,
+    fontWeight: 600
   },
   termHeading: {
     marginBottom: 2
@@ -170,6 +174,10 @@ const styles = StyleSheet.create({
     width: 160,
     textAlign: 'center',
     lineHeight: 0.8
+  },
+  signatureLabel: {
+    fontFamily: 'Helvetica',
+    fontWeight: 700
   },
   signatureDetails: {
     flexDirection: 'row',
@@ -226,7 +234,8 @@ const styles = StyleSheet.create({
   },
   paymentContactValue: {
     flex: 1,
-    lineHeight: 1
+    lineHeight: 1,
+    fontWeight: 600
   },
   paymentTitle: {
     marginBottom: 7,
@@ -520,8 +529,8 @@ const PaymentPage = ({
 
       <View style={styles.paymentSignatures}>
         <View style={styles.signatureRow}>
-          <Text style={[styles.signature, styles.latinText]}>Customer Signature</Text>
-          <Text style={[styles.signature, styles.latinText]}>Authorized&apos;s Signature</Text>
+          <Text style={[styles.signature, styles.signatureLabel]}>Customer Signature</Text>
+          <Text style={[styles.signature, styles.signatureLabel]}>Authorized&apos;s Signature</Text>
         </View>
         <View style={styles.signatureDetails}>
           <Text style={styles.signature}> </Text>
