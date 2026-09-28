@@ -273,12 +273,18 @@ export default function App() {
   };
 
   const buildPdf = async () => {
-    const [{ pdf }, { default: QuotationDocument }] = await Promise.all([
+    const [{ pdf }, { default: QuotationDocument }, { createPdfTextImages }] = await Promise.all([
       import('@react-pdf/renderer'),
-      import('./QuotationDocument')
+      import('./QuotationDocument'),
+      import('./pdfTextImage')
     ]);
+    const textImages = await createPdfTextImages({
+      projectName: data.projectName,
+      paymentNote: data.paymentNote,
+      paymentMeta: `Project: ${data.projectName || 'Untitled'}  |  Quotation Total: ${formatMoney(total)} MMK`
+    });
     const blob = await pdf(
-      <QuotationDocument data={data} logoUrl={logoUrl} />
+      <QuotationDocument data={data} logoUrl={logoUrl} textImages={textImages} />
     ).toBlob();
     return blob;
   };

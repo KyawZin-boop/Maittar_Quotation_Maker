@@ -8,6 +8,7 @@ import {
   View
 } from '@react-pdf/renderer';
 import { formatDisplayDate, formatMoney } from './format';
+import type { PdfTextImages } from './pdfTextImage';
 import type { QuoteData, QuoteItem } from './types';
 
 Font.register({
@@ -75,6 +76,10 @@ const styles = StyleSheet.create({
   projectValue: {
     flex: 1,
     fontWeight: 600
+  },
+  projectValueImage: {
+    width: 481,
+    objectFit: 'contain'
   },
   table: {
     borderLeftWidth: 1,
@@ -259,7 +264,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#111111',
     textAlign: 'center',
-    lineHeight: 0.65
+    lineHeight: 1.2
+  },
+  paymentTextImage: {
+    alignSelf: 'center',
+    objectFit: 'contain'
   },
   paymentNoteMeta: {
     marginTop: 5,
@@ -319,6 +328,7 @@ const styles = StyleSheet.create({
 type Props = {
   data: QuoteData;
   logoUrl: string;
+  textImages?: PdfTextImages;
 };
 
 const chunkItems = (items: QuoteItem[]) => {
@@ -407,11 +417,13 @@ const Totals = ({ total }: { total: number }) => (
 const PaymentPage = ({
   data,
   logoUrl,
-  total
+  total,
+  textImages
 }: {
   data: QuoteData;
   logoUrl: string;
   total: number;
+  textImages?: PdfTextImages;
 }) => {
   const firstPayment = Math.round(total * 0.7);
   const secondPayment = Math.round(total * 0.2);
@@ -481,12 +493,39 @@ const PaymentPage = ({
       <Text style={styles.paymentTitle}>Air-Con Installation Work</Text>
       <View style={styles.paymentTable}>
         <View style={styles.paymentNote}>
-          <Text style={usesOnlyLatinCharacters(data.paymentNote) ? styles.latinText : {}}>
-            {data.paymentNote}
-          </Text>
-          <Text style={styles.paymentNoteMeta}>
-            {`Project: ${data.projectName || 'Untitled'}  |  Quotation Total: ${formatMoney(total)} MMK`}
-          </Text>
+          {textImages?.paymentNote ? (
+            <Image
+              src={textImages.paymentNote.src}
+              style={[
+                styles.paymentTextImage,
+                {
+                  width: textImages.paymentNote.width,
+                  height: textImages.paymentNote.height
+                }
+              ]}
+            />
+          ) : (
+            <Text style={usesOnlyLatinCharacters(data.paymentNote) ? styles.latinText : {}}>
+              {data.paymentNote}
+            </Text>
+          )}
+          {textImages?.paymentMeta ? (
+            <Image
+              src={textImages.paymentMeta.src}
+              style={[
+                styles.paymentTextImage,
+                {
+                  width: textImages.paymentMeta.width,
+                  height: textImages.paymentMeta.height,
+                  marginTop: 5
+                }
+              ]}
+            />
+          ) : (
+            <Text style={styles.paymentNoteMeta}>
+              {`Project: ${data.projectName || 'Untitled'}  |  Quotation Total: ${formatMoney(total)} MMK`}
+            </Text>
+          )}
         </View>
 
         {milestones.map((milestone) => (
@@ -550,7 +589,7 @@ const PaymentPage = ({
   );
 };
 
-export default function QuotationDocument({ data, logoUrl }: Props) {
+export default function QuotationDocument({ data, logoUrl, textImages }: Props) {
   const pages = chunkItems(data.items);
   const total = data.items.reduce(
     (sum, item) => sum + Number(item.quantity || 0) * Number(item.rate || 0),
@@ -611,7 +650,17 @@ export default function QuotationDocument({ data, logoUrl }: Props) {
                 <View style={styles.projectBox}>
                   <View style={styles.projectRow}>
                     <Text style={styles.projectLabel}>Project Name</Text>
-                    <Text style={styles.projectValue}>{data.projectName || '—'}</Text>
+                    {textImages?.projectName ? (
+                      <Image
+                        src={textImages.projectName.src}
+                        style={[
+                          styles.projectValueImage,
+                          { height: textImages.projectName.height }
+                        ]}
+                      />
+                    ) : (
+                      <Text style={styles.projectValue}>{data.projectName || '—'}</Text>
+                    )}
                   </View>
                   <View style={styles.projectRow}>
                     <Text style={styles.projectLabel}>Date</Text>
@@ -663,7 +712,12 @@ export default function QuotationDocument({ data, logoUrl }: Props) {
           </Page>
         );
       })}
-      <PaymentPage data={data} logoUrl={logoUrl} total={total} />
+      <PaymentPage
+        data={data}
+        logoUrl={logoUrl}
+        total={total}
+        textImages={textImages}
+      />
     </Document>
   );
 }
